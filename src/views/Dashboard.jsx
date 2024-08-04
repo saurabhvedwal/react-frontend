@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
-import AuthContext from "./context/AuthContext";
+import AuthContext from "../context/AuthContext";
 import { Navigate } from "react-router-dom";
-import constants from "./constants";
+import constants from "../constants";
 
 const Dashboard = () => {
   const { isLoggedIn } = useContext(AuthContext);
@@ -18,6 +18,6 @@ const Dashboard = () => {
       </p>
     </div>
   );
-}
+};
 
 export default Dashboard;

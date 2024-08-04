@@ -7,7 +7,7 @@ import constants from "../constants";
 import { AuthContext } from "../context";
 
 export default function Login() {
-  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
+  const { setIsLoggedIn } = useContext(AuthContext);
   const [loginForm, setLoginForm] = useState({
     email: {
       value: "",
