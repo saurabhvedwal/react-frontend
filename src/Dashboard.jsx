@@ -1,25 +1,23 @@
+import React, { useContext } from "react";
+import AuthContext from "./context/AuthContext";
+import { Navigate } from "react-router-dom";
+import constants from "./constants";
 
-
-
-
-import React, { useState } from "react";
-
-function Dashboard(props) {
-  const [startDate, setStartDate] = useState(new Date());
-  const tasks = [
-    'I Followed instructions the first time.',
-    'I stayed on task.',
-    'I kept a calm body.',
-    'I tried not to distract my peers.',
-
-  ]
+const Dashboard = () => {
+  const { isLoggedIn } = useContext(AuthContext);
+  if (!isLoggedIn) {
+    return <Navigate to={constants.APP_ROUTES.LOGIN} />;
+  }
 
   return (
     <div>
       <h1>Dahsboard</h1>
-      <p>This is views/Dahsboard.jsx. You can add anything you want here. The user is logged in! Cool!</p>
+      <p>
+        This is views/Dahsboard.jsx. You can add anything you want here. The
+        user is logged in! Cool!
+      </p>
     </div>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;

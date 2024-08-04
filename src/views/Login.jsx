@@ -1,76 +1,103 @@
+import { useContext, useState } from "react";
+import { Link, redirect } from "react-router-dom";
+import { axiosClientBasic } from "../axios-client.js";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 
-
-
-
-import { Link } from "react-router-dom";
-import axiosClient from "../axios-client.js";
-import { createRef } from "react";
-import { useStateContext } from "../context/ContextProvider.jsx";
-import { useState } from "react";
+import constants from "../constants";
+import { AuthContext } from "../context";
 
 export default function Login() {
+  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
+  const [loginForm, setLoginForm] = useState({
+    email: {
+      value: "",
+      type: "text",
+      label: "Email",
+      placeholder: "Email",
+      id: "email",
+    },
+    password: {
+      value: "",
+      type: "password",
+      label: "Password",
+      placeholder: "Password",
+      id: "password",
+    },
+  });
 
-  const LoginSignUpForm = {
-    height: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
-  };
-
-
-
-  const emailRef = createRef()
-  const passwordRef = createRef()
-  const { setUser, setToken } = useStateContext()
-  const [message, setMessage] = useState(null)
-
-  const onSubmit = ev => {
-    ev.preventDefault()
+  const onSubmit = (ev) => {
+    ev.preventDefault();
 
     const payload = {
-      email: emailRef.current.value,
-      password: passwordRef.current.value,
-    }
-    axiosClient.post('/login', payload)
-      .then(({ data }) => {
-        setUser(data.user)
-        setToken(data.token);
+      email: loginForm.email.value,
+      password: loginForm.password.value,
+    };
+    axiosClientBasic
+      .post(constants.API_ROUTES.LOGIN_ROUTE, payload)
+      .then(() => {
+        setIsLoggedIn(true);
+        console.log("Successfully loged in");
+        return redirect(constants.APP_ROUTES.DASHBOARD);
       })
       .catch((err) => {
         const response = err.response;
         if (response && response.status === 422) {
-          setMessage(response.data.message)
+          setMessage(response.data.message);
         }
-      })
-  }
+      });
+  };
+
+  const onFormFieldChange = (field) => (e) => {
+    setLoginForm((prev) => ({
+      ...prev,
+      [field]: {
+        ...prev[field],
+        value: e.target.value,
+      },
+    }));
+  };
 
   return (
-    <div className="animated fadeInDown" style={LoginSignUpForm}>
-
-      <form className="row g-3" onSubmit={onSubmit}>
-        {message &&
-          <div className="alert">
-            <p>{message}</p>
-          </div>
-        }
-
-
-        <h1 className="title">Login To Your Account</h1>
-        <div className="col-auto">
-          <label htmlFor="staticEmail2" className="visually-hidden">Email</label>
-          <input ref={emailRef} type="text" className="form-control" placeholder="Email" />
-        </div>
-        <div className="col-auto">
-          <label htmlFor="inputPassword2" className="visually-hidden">Password</label>
-          <input ref={passwordRef} type="password" className="form-control" placeholder="Password" />
-        </div>
-        <div className="col-auto">
-          <button type="submit" className="btn btn-primary mb-3">Confirm identity</button>
-        </div>
-        <div className="text-center">
-          <p className="message">Not registered? <Link to="/signup">Create an account</Link></p>
-        </div>
-      </form>
-    </div>
-  )
+    <Container>
+      <Row className="animated fadeInDown justify-content-md-center mt-5">
+        <Col xs="12" md="6" lg="4">
+          <h1 className="text-center mb-4">User Login</h1>
+          <Form className="row g-3" onSubmit={onSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label htmlFor="email">{loginForm.email.label}</Form.Label>
+              <Form.Control
+                type={loginForm.email.type}
+                id={loginForm.email.id}
+                className="form-control"
+                value={loginForm.email.value}
+                placeholder={loginForm.email.placeholder}
+                onChange={onFormFieldChange("email")}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label htmlFor="password">
+                {loginForm.password.label}
+              </Form.Label>
+              <Form.Control
+                type={loginForm.password.type}
+                id={loginForm.password.id}
+                className="form-control"
+                value={loginForm.password.value}
+                placeholder={loginForm.password.placeholder}
+                onChange={onFormFieldChange("password")}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Button type="submit" variant="primary" className="mb-3 w-100">
+                Login
+              </Button>
+              <p className="message">
+                Not registered? <Link to="/signup">Create an account</Link>
+              </p>
+            </Form.Group>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
+  );
 }

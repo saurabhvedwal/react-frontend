@@ -24,7 +24,7 @@ npm run dev
 ```
 
 ## Usage
-Open https://127.0.0.1:5173/login
+Open https://127.0.0.1:3000/login
 
 ## License
 

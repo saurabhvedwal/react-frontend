@@ -1,30 +1,66 @@
-
-
 import axios from "axios";
-import {useStateContext} from "./context/ContextProvider.jsx";
+import Cookies from "js-cookie";
+
+import config from "./config";
+import constants from "./constants";
+import { clearBrowserStorage } from "./utils";
+
+axios.defaults.withCredentials = true;
 
 const axiosClient = axios.create({
-  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`
-})
+  baseURL: `${config.apiBaseUrl}${constants.API_ROUTE_PREFIX}`,
+});
 
-axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('ACCESS_TOKEN');
-  config.headers.Authorization = `Bearer ${token}`
-  return config;
-})
+const axiosClientBasic = axios.create({
+  baseURL: `${config.apiBaseUrl}`,
+});
 
-axiosClient.interceptors.response.use((response) => {
-  return response
-}, (error) => {
-  const {response} = error;
-  if (response.status === 401) {
-    localStorage.removeItem('ACCESS_TOKEN')
-    // window.location.reload();
-  } else if (response.status === 404) {
-    //Show not found
+const onRequest = (config) => {
+  // If http method is `post | put | delete` and XSRF-TOKEN cookie is
+  // not present, call '/sanctum/csrf-cookie' to set CSRF token, then
+  // proceed with the initial response
+  if (
+    (config.method == "post" ||
+      config.method == "put" ||
+      config.method == "delete") &&
+    /* other methods you want to add here */
+    !Cookies.get(constants.XSRF_COOKIE_KEY)
+  ) {
+    return setCSRFToken().then((response) => config);
   }
+  return config;
+};
 
-  throw error;
-})
+// A function that calls '/api/csrf-cookie' to set the CSRF cookies. The
+// default is 'sanctum/csrf-cookie' but you can configure it to be anything.
+const setCSRFToken = () => {
+  return axiosClientBasic.get(constants.API_ROUTES.CSRF_ROUTE); // resolves to '/api/csrf-cookie'.
+};
 
-export default axiosClient
+const onResponseSuccess = (response) => {
+  return response;
+};
+
+const onResponseError = (error) => {
+  const { response } = error;
+    console.log(error, response);
+    if (response.status === 401) {
+      clearBrowserStorage();
+      // window.location.reload();
+    } else if (response.status === 404) {
+      //Show not found
+    }
+
+    throw error;
+};
+
+// Request interceptor. Runs before your request reaches the server
+axiosClient.interceptors.request.use(onRequest, null);
+axiosClientBasic.interceptors.request.use(onRequest, null);
+axiosClient.interceptors.response.use(onResponseSuccess, onResponseError);
+axiosClientBasic.interceptors.response.use(onResponseSuccess, onResponseError);
+
+export {
+  axiosClientBasic
+};
+export default axiosClient;
