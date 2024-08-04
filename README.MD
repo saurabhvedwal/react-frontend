@@ -17,8 +17,8 @@ This is a very simple Vite-React app that uses a Laravel Backend API to authenti
 ## Installation
 
 ```bash
-git clone https://github.com/edwinaquino/Vite-React-With-Login-Authentication-Backend-API.git
-cd Vite-React-With-Login-Authentication-Backend-API
+git clone git@github.com:saurabhvedwal/react-frontend.git
+cd react-frontend
 npm install
 npm run dev
 ```
@@ -27,8 +27,3 @@ npm run dev
 Open https://127.0.0.1:3000/login
 
 ## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-#Source
-/f/apachefriends/xampp/htdocs/over-imgV4/VITE-REACT/overimg4
